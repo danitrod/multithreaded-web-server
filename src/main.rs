@@ -23,16 +23,29 @@ fn handle_connection(mut stream: TcpStream) {
 
     stream.read(&mut buffer).unwrap();
 
-    let contents = fs::read_to_string("hello.html").unwrap();
+    // Validate that the request is a GET /
+    const GET_INDEX: &[u8; 16] = b"GET / HTTP/1.1\r\n";
 
-    /*  The HTTP response should look something like this:
+    let (status_line, filename) = if buffer.starts_with(GET_INDEX) {
+        ("HTTP/1.1 200 OK", "static/index.html")
+    } else {
+        // Return a 404 if not
+        ("HTTP/1.1 404 NOT FOUND", "static/404.html")
+    };
+
+    let contents = fs::read_to_string(filename).unwrap();
+
+    /* The HTTP response should look something like this
+    (defined here: https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html):
+
     HTTP-Version Status-Code Reason-Phrase CRLF
     headers CRLF
     CRLF
     body
     */
     let response = format!(
-        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
+        "{}\r\nContent-Length: {}\r\n\r\n{}",
+        status_line,
         contents.len(),
         contents
     );
