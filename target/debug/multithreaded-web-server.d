@@ -1,1 +1,0 @@
-/Users/danitrod/Documents/learn/Rust/rust-book.nosync/chapter-20-final-project/multithreaded-web-server/target/debug/multithreaded-web-server: /Users/danitrod/Documents/learn/Rust/rust-book.nosync/chapter-20-final-project/multithreaded-web-server/src/main.rs
