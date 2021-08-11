@@ -2,6 +2,8 @@ use std::{
     fs,
     io::prelude::*,
     net::{TcpListener, TcpStream},
+    thread,
+    time::Duration,
 };
 
 fn main() {
@@ -28,9 +30,13 @@ fn handle_connection(mut stream: TcpStream) {
 
     // Validate that the request is a GET /
     const GET_INDEX: &[u8; 16] = b"GET / HTTP/1.1\r\n";
+    const SLEEP: &[u8; 21] = b"GET /sleep HTTP/1.1\r\n";
 
     let (status_line, filename) = if buffer.starts_with(GET_INDEX) {
         ("HTTP/1.1 200 OK", "static/index.html")
+    } else if buffer.starts_with(SLEEP) {
+        thread::sleep(Duration::from_secs(5));
+        ("HTTP/1.1 200 OK", "static/sleep.html")
     } else {
         // Return a 404 if not
         ("HTTP/1.1 404 NOT FOUND", "static/404.html")
