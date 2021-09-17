@@ -1,3 +1,4 @@
+use multithreaded_web_server::ThreadPool;
 use std::{
     fs,
     io::prelude::*,
@@ -9,13 +10,19 @@ use std::{
 fn main() {
     let port = std::env::var("PORT").unwrap_or("7878".into());
     let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
+    let pool = ThreadPool::new(4);
 
     println!("Listening on port {}", port);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        handle_connection(stream);
+        // We could spawn a thread for each incoming request, but spawning threads with no limit
+        // can overwhelm the underlying infrastructure. Therefore we use a thread pool to handle
+        // requests with a fixed number of threads
+        pool.execute(|| {
+            handle_connection(stream);
+        });
     }
 }
 
