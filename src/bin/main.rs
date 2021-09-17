@@ -14,7 +14,11 @@ fn main() {
 
     println!("Listening on port {}", port);
 
-    for stream in listener.incoming() {
+    for stream in listener
+        .incoming()
+        // just take 2 to simulate the graceful shutdown with Drop
+        .take(2)
+    {
         let stream = stream.unwrap();
 
         // We could spawn a thread for each incoming request, but spawning threads with no limit
